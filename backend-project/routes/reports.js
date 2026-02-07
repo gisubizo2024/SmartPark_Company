@@ -5,7 +5,7 @@ const db = require('../db');
 router.get('/payroll', async (req, res) => {
     const { month } = req.query; // Optional filter by month
     let query = `
-    SELECT e.FirstName, e.LastName, e.Position, d.DepartmentName, s.NetSalary, s.month
+    SELECT e.FirstName, e.LastName, e.Position, d.DepartmentName, s.GrossSalary, s.TotalDeduction, s.NetSalary, s.month
     FROM Salary s
     JOIN Employee e ON s.employeeNumber = e.employeeNumber
     JOIN Department d ON e.DepartmentCode = d.DepartmentCode

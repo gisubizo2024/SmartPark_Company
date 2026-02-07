@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Pencil, Trash2, Eye, X, Plus, Building2, TrendingUp, DollarSign } from 'lucide-react';
+import { Pencil, Trash2, Eye, X, Plus, Building2, TrendingUp, DollarSign, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Department() {
@@ -284,55 +284,80 @@ export default function Department() {
                 </div>
             </div>
 
-            {/* List */}
+            {/* Department List */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                    <h3 className="text-lg font-semibold text-gray-800">Existing Departments</h3>
-                    <p className="text-sm text-gray-600 mt-1">All registered departments with salary information</p>
+                <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="relative flex-1 max-w-md">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                        <input
+                            type="text"
+                            placeholder="Search departments..."
+                            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
                 </div>
+
                 <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                    <table className="w-full">
+                        <thead className="bg-gray-50/50">
                             <tr>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Code</th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Gross Salary</th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Deduction</th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Department Code</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Department Name</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Manager</th>
+                                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {departments.filter(d => {
-                                const matchesSearch = (d.DepartmentName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-                                    (d.DepartmentCode?.toLowerCase() || '').includes(searchTerm.toLowerCase());
-                                return matchesSearch;
-                            }).map(d => (
-                                <tr key={d.DepartmentCode} className="hover:bg-gray-50 transition-colors">
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                                            {d.DepartmentCode}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm font-medium text-gray-900">{d.DepartmentName}</div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{Number(d.GrossSalary).toLocaleString()} RWF</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600">{Number(d.TotalDeduction).toLocaleString()} RWF</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <div className="flex items-center gap-3">
-                                            <button onClick={() => setViewingDept(d)} className="text-blue-600 hover:text-blue-800 transition-colors" title="View">
-                                                <Eye className="w-5 h-5" />
-                                            </button>
-                                            <button onClick={() => handleEdit(d)} className="text-indigo-600 hover:text-indigo-800 transition-colors" title="Edit">
-                                                <Pencil className="w-5 h-5" />
-                                            </button>
-                                            <button onClick={() => handleDelete(d.DepartmentCode)} className="text-red-600 hover:text-red-800 transition-colors" title="Delete">
-                                                <Trash2 className="w-5 h-5" />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
+                        <tbody className="divide-y divide-gray-100">
+                            <AnimatePresence>
+                                {departments.filter(d => {
+                                    const matchesSearch = (d.DepartmentName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+                                        (d.DepartmentCode?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+                                    return matchesSearch;
+                                }).map((dept) => (
+                                    <motion.tr
+                                        key={dept.DepartmentCode}
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        className="hover:bg-gray-50/50 transition-colors"
+                                    >
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-sm font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                                {dept.DepartmentCode}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex items-center">
+                                                <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 mr-3">
+                                                    <Building2 className="w-5 h-5" />
+                                                </div>
+                                                <div className="text-sm font-medium text-gray-900">{dept.DepartmentName}</div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {dept.Manager || <span className="text-gray-400 italic">Not Assigned</span>}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <div className="flex items-center justify-end gap-2">
+                                                <button
+                                                    onClick={() => handleEdit(dept)}
+                                                    className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                                                >
+                                                    <Pencil className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(dept.DepartmentCode)}
+                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </motion.tr>
+                                ))}
+                            </AnimatePresence>
                             {departments.length === 0 && (
                                 <tr>
                                     <td colSpan="5" className="px-6 py-12 text-center">

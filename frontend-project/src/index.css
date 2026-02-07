@@ -1,1 +1,16 @@
 @import "tailwindcss";
+
+@layer utilities {
+    @media print {
+        @page {
+            margin: 0.5cm;
+            size: auto;
+        }
+
+        /* Ensure background colors are printed */
+        body {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+}

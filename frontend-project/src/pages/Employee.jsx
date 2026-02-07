@@ -172,6 +172,16 @@ export default function Employee() {
                                             />
                                         </div>
                                         <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                                            <input
+                                                type="email"
+                                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                                value={formData.Email}
+                                                onChange={e => setFormData({ ...formData, Email: e.target.value })}
+                                                required
+                                            />
+                                        </div>
+                                        <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">Gender *</label>
                                             <select
                                                 className="w-full px-3 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all bg-white"
@@ -223,8 +233,8 @@ export default function Employee() {
                                             <label className="block text-sm font-medium text-gray-700 mb-1">Department *</label>
                                             <select
                                                 className="w-full px-3 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all bg-white"
-                                                value={formData.DepartmentCode}
-                                                onChange={e => setFormData({ ...formData, DepartmentCode: e.target.value })}
+                                                value={formData.DepartmentID} // Changed DepartmentCode to DepartmentID
+                                                onChange={e => setFormData({ ...formData, DepartmentID: e.target.value })}
                                                 required
                                             >
                                                 <option value="">Select Department</option>
@@ -234,12 +244,23 @@ export default function Employee() {
                                             </select>
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">Hired Date *</label>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Hire Date *</label>
                                             <input
                                                 type="date"
                                                 className="w-full px-3 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                                                value={formData.hiredDate}
-                                                onChange={e => setFormData({ ...formData, hiredDate: e.target.value })}
+                                                value={formData.HireDate} // Changed hiredDate to HireDate
+                                                onChange={e => setFormData({ ...formData, HireDate: e.target.value })}
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Salary (RWF) *</label>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                                value={formData.Salary}
+                                                onChange={e => setFormData({ ...formData, Salary: e.target.value })}
                                                 required
                                             />
                                         </div>

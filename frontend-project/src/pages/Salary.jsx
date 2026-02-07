@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Pencil, Trash2, Eye, X, Plus, Users, Wallet, TrendingUp } from 'lucide-react';
+import { Pencil, Trash2, Eye, X, Plus, Users, Wallet, TrendingUp, Search, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Salary() {
@@ -272,6 +272,7 @@ export default function Salary() {
             </div>
 
             {/* Filters */}
+            {/* Filters */}
             <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 justify-between items-center">
                 <div className="flex-1 w-full md:w-auto relative">
                     <input
@@ -293,62 +294,106 @@ export default function Salary() {
                 </div>
             </div>
 
+            {/* Salary List */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                    <h3 className="text-lg font-semibold text-gray-800">Salary Records</h3>
-                    <p className="text-sm text-gray-600 mt-1">Complete payroll history and compensation details</p>
+                <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="relative flex-1 max-w-md">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                        <input
+                            type="text"
+                            placeholder="Search by name, position or department..."
+                            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
                 </div>
+
                 <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                    <table className="w-full">
+                        <thead className="bg-gray-50/50">
                             <tr>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Employee</th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Gross</th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Deduction</th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Net Salary</th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Month</th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Employee</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Department</th>
+                                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Base Salary</th>
+                                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Allowances</th>
+                                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Deductions</th>
+                                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Net Salary</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Month</th>
+                                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {salaries.filter(s => {
-                                const matchesSearch = (s.FirstName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-                                    (s.LastName?.toLowerCase() || '').includes(searchTerm.toLowerCase());
-                                const matchesMonth = monthFilter ? s.month?.startsWith(monthFilter) : true;
-                                return matchesSearch && matchesMonth;
-                            }).map(s => (
-                                <tr key={s.id} className="hover:bg-gray-50 transition-colors">
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm font-medium text-gray-900">{s.FirstName} {s.LastName}</div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{Number(s.GrossSalary).toLocaleString()} RWF</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600">{Number(s.TotalDeduction).toLocaleString()} RWF</td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="text-sm font-semibold text-green-600">{Number(s.NetSalary).toLocaleString()} RWF</span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                            {s.month ? s.month.split('T')[0] : ''}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <div className="flex items-center gap-3">
-                                            <button onClick={() => setViewingSalary(s)} className="text-blue-600 hover:text-blue-800 transition-colors" title="View">
-                                                <Eye className="w-5 h-5" />
-                                            </button>
-                                            <button onClick={() => handleEdit(s)} className="text-indigo-600 hover:text-indigo-800 transition-colors" title="Edit">
-                                                <Pencil className="w-5 h-5" />
-                                            </button>
-                                            <button onClick={() => handleDelete(s.id)} className="text-red-600 hover:text-red-800 transition-colors" title="Delete">
-                                                <Trash2 className="w-5 h-5" />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
+                        <tbody className="divide-y divide-gray-100">
+                            <AnimatePresence>
+                                {salaries.filter(s => {
+                                    const matchesSearch = (s.FirstName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+                                        (s.LastName?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+                                    const matchesMonth = monthFilter ? s.month?.startsWith(monthFilter) : true;
+                                    return matchesSearch && matchesMonth;
+                                }).map((salary) => (
+                                    <motion.tr
+                                        key={salary.id}
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        className="hover:bg-gray-50/50 transition-colors"
+                                    >
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex items-center">
+                                                <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-sm">
+                                                    {salary.FirstName.charAt(0)}{salary.LastName.charAt(0)}
+                                                </div>
+                                                <div className="ml-4">
+                                                    <div className="text-sm font-medium text-gray-900">{salary.FirstName} {salary.LastName}</div>
+                                                    <div className="text-sm text-gray-500">{salary.Position}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                {salary.DepartmentName}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-600 font-medium">
+                                            {(salary.GrossSalary - salary.TotalDeduction).toLocaleString()} RWF
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-green-600">
+                                            +{0} RWF {/* Assuming allowances are not directly in the current salary object, or need calculation */}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-red-600">
+                                            -{salary.TotalDeduction.toLocaleString()} RWF
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-bold text-gray-900">
+                                            {salary.NetSalary.toLocaleString()} RWF
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <div className="flex items-center gap-2">
+                                                <Calendar className="w-4 h-4 text-gray-400" />
+                                                {salary.month ? salary.month.split('T')[0] : ''}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <div className="flex items-center justify-end gap-2">
+                                                <button
+                                                    onClick={() => handleEdit(salary)}
+                                                    className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                                                >
+                                                    <Pencil className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(salary.id)}
+                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </motion.tr>
+                                ))}
+                            </AnimatePresence>
                             {salaries.length === 0 && (
                                 <tr>
-                                    <td colSpan="6" className="px-6 py-12 text-center">
+                                    <td colSpan="8" className="px-6 py-12 text-center">
                                         <Wallet className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                                         <p className="text-gray-500 font-medium">No salary records found</p>
                                         <p className="text-gray-400 text-sm mt-1">Add your first salary record to begin tracking payroll</p>

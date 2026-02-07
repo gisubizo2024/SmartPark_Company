@@ -8,6 +8,7 @@ import Salary from './pages/Salary';
 import Reports from './pages/Reports';
 import Layout from './components/Layout';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import Settings from './pages/Settings';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -16,6 +17,7 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
+// Force rebuild
 export default function App() {
   return (
     <AuthProvider>
@@ -32,6 +34,7 @@ export default function App() {
           <Route path="departments" element={<Department />} />
           <Route path="salaries" element={<Salary />} />
           <Route path="reports" element={<Reports />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
     </AuthProvider>
