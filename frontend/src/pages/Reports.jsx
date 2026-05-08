@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/config';
 import { FileText, Download, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -8,7 +8,7 @@ export default function Reports() {
 
     const fetchData = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/reports/daily');
+            const res = await api.get('/api/reports/daily');
             setReportData(res.data);
         } catch (err) {
             console.error(err);

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/config';
 import { Plus, X, Grid, CheckCircle, XCircle, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -10,7 +10,7 @@ export default function ParkingSlots() {
 
     const fetchData = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/parking-slots');
+            const res = await api.get('/api/parking-slots');
             setSlots(res.data);
         } catch (err) {
             console.error(err);
@@ -24,7 +24,7 @@ export default function ParkingSlots() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:5000/api/parking-slots', { slotNumber });
+            await api.post('/api/parking-slots', { slotNumber });
             fetchData();
             setSlotNumber('');
             setShowForm(false);
@@ -37,7 +37,7 @@ export default function ParkingSlots() {
     const handleDelete = async (num) => {
         if (window.confirm('Delete this slot?')) {
             try {
-                await axios.delete(`http://localhost:5000/api/parking-slots/${num}`);
+                await api.delete(`/api/parking-slots/${num}`);
                 fetchData();
             } catch (err) {
                 console.error(err);
@@ -49,7 +49,7 @@ export default function ParkingSlots() {
     const toggleStatus = async (num, current) => {
         const newStatus = current === 'Available' ? 'Occupied' : 'Available';
         try {
-            await axios.put(`http://localhost:5000/api/parking-slots/${num}`, { status: newStatus });
+            await api.put(`/api/parking-slots/${num}`, { status: newStatus });
             fetchData();
         } catch (err) {
             console.error(err);

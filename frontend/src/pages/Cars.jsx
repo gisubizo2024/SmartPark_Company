@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/config';
 import { Pencil, Trash2, Eye, X, Plus, Car as CarIcon, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -16,7 +16,7 @@ export default function Cars() {
 
     const fetchData = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/cars');
+            const res = await api.get('/api/cars');
             setCars(res.data);
         } catch (err) {
             console.error(err);
@@ -31,10 +31,10 @@ export default function Cars() {
         e.preventDefault();
         try {
             if (editingId) {
-                await axios.put(`http://localhost:5000/api/cars/${editingId}`, formData);
+                await api.put(`/api/cars/${editingId}`, formData);
                 alert('Car updated successfully');
             } else {
-                await axios.post('http://localhost:5000/api/cars', formData);
+                await api.post('/api/cars', formData);
                 alert('Car registered successfully');
             }
             fetchData();
@@ -60,7 +60,7 @@ export default function Cars() {
     const handleDelete = async (plateNumber) => {
         if (window.confirm('Are you sure you want to delete this car?')) {
             try {
-                await axios.delete(`http://localhost:5000/api/cars/${plateNumber}`);
+                await api.delete(`/api/cars/${plateNumber}`);
                 fetchData();
             } catch (err) {
                 console.error(err);

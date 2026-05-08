@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/config';
 import { motion } from 'framer-motion';
 import {
     Users, Car, CreditCard, TrendingUp,
@@ -17,7 +17,7 @@ export default function Dashboard() {
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
-                const res = await axios.get('http://localhost:5000/api/dashboard/summary');
+                const res = await api.get('/api/dashboard/summary');
                 setData(res.data);
             } catch (err) {
                 console.error("Error fetching dashboard data:", err);

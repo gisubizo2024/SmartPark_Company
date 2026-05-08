@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/config';
 import { Users as UsersIcon, Shield, Trash2, UserPlus, X, Eye, Pencil, CheckCircle, Lock, Unlock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -13,7 +13,7 @@ export default function Users() {
 
     const fetchUsers = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/auth/users');
+            const res = await api.get('/auth/users');
             setUsers(res.data);
         } catch (err) {
             console.error(err);
@@ -28,7 +28,7 @@ export default function Users() {
 
     const handleRoleChange = async (userId, newRole) => {
         try {
-            await axios.put(`http://localhost:5000/auth/users/${userId}/role`, { role: newRole });
+            await api.put(`/auth/users/${userId}/role`, { role: newRole });
             fetchUsers();
         } catch (err) {
             console.error(err);
@@ -38,7 +38,7 @@ export default function Users() {
 
     const handleToggleBlock = async (userId) => {
         try {
-            await axios.put(`http://localhost:5000/auth/users/${userId}/toggle-block`);
+            await api.put(`/auth/users/${userId}/toggle-block`);
             fetchUsers();
         } catch (err) {
             console.error(err);
@@ -49,7 +49,7 @@ export default function Users() {
     const handleDelete = async (userId) => {
         if (window.confirm('Are you sure you want to delete this user?')) {
             try {
-                await axios.delete(`http://localhost:5000/auth/users/${userId}`);
+                await api.delete(`/auth/users/${userId}`);
                 fetchUsers();
             } catch (err) {
                 console.error(err);
@@ -62,13 +62,13 @@ export default function Users() {
         e.preventDefault();
         try {
             if (editingUser) {
-                await axios.put(`http://localhost:5000/auth/users/${editingUser.UserID}`, {
+                await api.put(`/auth/users/${editingUser.UserID}`, {
                     username: formData.username,
                     password: formData.password || undefined
                 });
                 alert('User updated successfully');
             } else {
-                await axios.post('http://localhost:5000/auth/register', formData);
+                await api.post('/auth/register', formData);
                 alert('User registered successfully');
             }
             fetchUsers();

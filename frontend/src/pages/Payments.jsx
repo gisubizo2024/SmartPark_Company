@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/config';
 import { CreditCard, Receipt, Eye, Printer, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -9,7 +9,7 @@ export default function Payments() {
 
     const fetchData = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/payments');
+            const res = await api.get('/api/payments');
             setPayments(res.data);
         } catch (err) {
             console.error(err);
@@ -22,7 +22,7 @@ export default function Payments() {
 
     const viewBill = async (recordId) => {
         try {
-            const res = await axios.get(`http://localhost:5000/api/payments/bill/${recordId}`);
+            const res = await api.get(`/api/payments/bill/${recordId}`);
             setSelectedBill(res.data);
         } catch (err) {
             console.error(err);

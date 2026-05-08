@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios'; // Updated
+import api from '../api/config';
 import { LogIn, LogOut, Trash2, Clock, Car as CarIcon, Grid, Pencil } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -15,9 +15,9 @@ export default function ParkingRecords() {
     const fetchData = async () => {
         try {
             const [recRes, carRes, slotRes] = await Promise.all([
-                axios.get('http://localhost:5000/api/parking-records'),
-                axios.get('http://localhost:5000/api/cars'),
-                axios.get('http://localhost:5000/api/parking-slots')
+                api.get('/api/parking-records'),
+                api.get('/api/cars'),
+                api.get('/api/parking-slots')
             ]);
             setRecords(recRes.data);
             setCars(carRes.data);
@@ -34,7 +34,7 @@ export default function ParkingRecords() {
     const handleEntry = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:5000/api/parking-records/entry', entryData);
+            await api.post('/api/parking-records/entry', entryData);
             fetchData();
             setEntryData({ plateNumber: '', slotNumber: '' });
         } catch (err) {
@@ -46,7 +46,7 @@ export default function ParkingRecords() {
     const handleExit = async (recordId) => {
         if (window.confirm('Process car exit and generate bill?')) {
             try {
-                await axios.post(`http://localhost:5000/api/parking-records/exit/${recordId}`);
+                await api.post(`/api/parking-records/exit/${recordId}`);
                 fetchData();
             } catch (err) {
                 console.error(err);
@@ -58,7 +58,7 @@ export default function ParkingRecords() {
     const handleDelete = async (recordId) => {
         if (window.confirm('Permanently delete this record? This action cannot be undone.')) {
             try {
-                await axios.delete(`http://localhost:5000/api/parking-records/${recordId}`, {
+                await api.delete(`/api/parking-records/${recordId}`, {
                     headers: { 'x-user-role': user.role }
                 });
                 fetchData();
@@ -175,7 +175,7 @@ export default function ParkingRecords() {
                                                 <button 
                                                     onClick={() => {
                                                         const newTime = prompt("Enter new Entry Time (YYYY-MM-DD HH:MM:SS):", r.EntryTime);
-                                                        if (newTime) axios.put(`http://localhost:5000/api/parking-records/${r.RecordID}`, { entryTime: newTime }).then(fetchData);
+                                                        if (newTime) api.put(`/api/parking-records/${r.RecordID}`, { entryTime: newTime }).then(fetchData);
                                                     }}
                                                     className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
                                                     title="Edit Record"
