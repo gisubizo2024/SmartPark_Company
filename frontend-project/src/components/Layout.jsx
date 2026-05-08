@@ -16,13 +16,15 @@ export default function Layout() {
     };
 
     const navItems = [
-        { name: 'Dashboard', path: '/', icon: LayoutDashboard },
-        { name: 'Employee', path: '/employees', icon: Users },
-        { name: 'Department', path: '/departments', icon: Building2 },
-        { name: 'Salary', path: '/salaries', icon: Banknote },
-        { name: 'Reports', path: '/reports', icon: FileText },
-        { name: 'Settings', path: '/settings', icon: SettingsIcon },
-    ];
+        { name: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['Admin', 'Manager'] },
+        { name: 'Cars', path: '/cars', icon: Users, roles: ['Admin', 'Manager'] },
+        { name: 'Parking Slots', path: '/parking-slots', icon: Building2, roles: ['Admin', 'Manager'] },
+        { name: 'Operations', path: '/operations', icon: Banknote, roles: ['Admin', 'Manager'] },
+        { name: 'Payments', path: '/payments', icon: Banknote, roles: ['Admin', 'Manager', 'Cashier'] },
+        { name: 'Reports', path: '/reports', icon: FileText, roles: ['Admin', 'Manager'] },
+        { name: 'Users', path: '/users', icon: Users, roles: ['Admin'] },
+        { name: 'Settings', path: '/settings', icon: SettingsIcon, roles: ['Admin', 'Manager', 'Cashier'] },
+    ].filter(item => item.roles.includes(user?.role || 'Cashier'));
 
     const SidebarContent = () => (
         <>
@@ -80,7 +82,7 @@ export default function Layout() {
                     </div>
                     <div className="ml-3">
                         <p className="text-sm font-medium text-white">{user?.username || 'User'}</p>
-                        <p className="text-xs text-slate-400">Administrator</p>
+                        <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">{user?.role || 'Staff'}</p>
                     </div>
                 </div>
                 <button

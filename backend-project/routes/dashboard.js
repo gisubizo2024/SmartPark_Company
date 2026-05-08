@@ -4,59 +4,51 @@ const db = require('../db');
 
 router.get('/summary', async (req, res) => {
     try {
-        // 1. KPI: Total Employees
-        const [empCount] = await db.query('SELECT COUNT(*) as total FROM Employee');
+        // 1. KPI: Total Cars
+        const [carCount] = await db.query('SELECT COUNT(*) as total FROM Car');
 
-        // 2. KPI: Total Departments
-        const [deptCount] = await db.query('SELECT COUNT(*) as total FROM Department');
-
-        // 3. KPI: Total Salary Paid (All Time & Current Month)
-        const [salaryStats] = await db.query(`
+        // 2. KPI: Total Slots & Occupancy
+        const [slotStats] = await db.query(`
             SELECT 
-                SUM(NetSalary) as totalPaid,
-                AVG(NetSalary) as avgSalary
-            FROM Salary
+                COUNT(*) as total,
+                SUM(CASE WHEN SlotStatus = 'Occupied' THEN 1 ELSE 0 END) as occupied,
+                SUM(CASE WHEN SlotStatus = 'Available' THEN 1 ELSE 0 END) as available
+            FROM ParkingSlot
         `);
 
-        // 4. Chart: Employees per Department
-        const [deptDist] = await db.query(`
-            SELECT d.DepartmentName, COUNT(e.employeeNumber) as count
-            FROM Department d
-            LEFT JOIN Employee e ON d.DepartmentCode = e.DepartmentCode
-            GROUP BY d.DepartmentCode, d.DepartmentName
+        // 3. KPI: Total Revenue
+        const [revenueStats] = await db.query('SELECT SUM(AmountPaid) as totalRevenue FROM Payment');
+
+        // 4. Chart: Revenue Trends (Last 7 Days)
+        const [revenueTrends] = await db.query(`
+            SELECT DATE(PaymentDate) as date, SUM(AmountPaid) as total
+            FROM Payment
+            GROUP BY DATE(PaymentDate)
+            ORDER BY date DESC
+            LIMIT 7
         `);
 
-        // 5. Chart: Recent Salary Trends (Last 6 Months)
-        // Grouping by month. MySQL 'create_time' or similar field is needed.
-        // Since 'month' column exists in Salary table:
-        const [salaryTrends] = await db.query(`
-            SELECT DATE_FORMAT(month, '%Y-%m') as monthStr, SUM(NetSalary) as total
-            FROM Salary
-            GROUP BY monthStr
-            ORDER BY monthStr DESC
-            LIMIT 6
-        `);
-
-        // 6. Activity: Recent Hires (Last 5)
-        const [recentHires] = await db.query(`
-            SELECT FirstName, LastName, Position, hiredDate, DepartmentCode 
-            FROM Employee 
-            ORDER BY hiredDate DESC 
+        // 5. Recent Activity: Latest 5 Parking Records
+        const [recentActivity] = await db.query(`
+            SELECT pr.*, c.DriverName 
+            FROM ParkingRecord pr
+            JOIN Car c ON pr.PlateNumber = c.PlateNumber
+            ORDER BY EntryTime DESC 
             LIMIT 5
         `);
 
         res.json({
             kpi: {
-                totalEmployees: empCount[0].total,
-                totalDepartments: deptCount[0].total,
-                totalSalaryPaid: salaryStats[0].totalPaid || 0,
-                avgSalary: Math.round(salaryStats[0].avgSalary || 0)
+                totalCars: carCount[0].total,
+                totalSlots: slotStats[0].total,
+                occupiedSlots: slotStats[0].occupied || 0,
+                availableSlots: slotStats[0].available || 0,
+                totalRevenue: revenueStats[0].totalRevenue || 0
             },
             charts: {
-                departmentDistribution: deptDist,
-                salaryTrends: salaryTrends.reverse() // Show oldest to newest
+                revenueTrends: revenueTrends.reverse()
             },
-            recentHires
+            recentActivity
         });
 
     } catch (err) {

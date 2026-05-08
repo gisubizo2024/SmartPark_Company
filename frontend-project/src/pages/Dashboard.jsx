@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import {
-    Users, Building2, CreditCard, TrendingUp,
-    Activity, AlertCircle, CheckCircle
+    Users, Car, CreditCard, TrendingUp,
+    Activity, AlertCircle, CheckCircle, Grid
 } from 'lucide-react';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
@@ -38,154 +38,133 @@ export default function Dashboard() {
 
     if (!data) return <div className="text-center p-10 text-red-500">Failed to load dashboard data.</div>;
 
-    const { kpi, charts, recentHires } = data;
+    const { kpi, charts, recentActivity } = data;
 
-    const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#0088FE'];
+    const COLORS = ['#4F46E5', '#EF4444', '#10B981', '#F59E0B'];
 
-    // Loading check moved up
+    const occupancyData = [
+        { name: 'Occupied', value: kpi.occupiedSlots },
+        { name: 'Available', value: kpi.availableSlots }
+    ];
 
     return (
         <div className="space-y-6">
-            <h1 className="text-3xl font-bold text-gray-800">Dashboard Overview</h1>
+            <h1 className="text-3xl font-bold text-gray-800">SmartPark Overview</h1>
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <KPICard
-                    title="Total Employees"
-                    value={kpi.totalEmployees}
-                    icon={<Users className="w-8 h-8 text-blue-600" />}
+                    title="Total Cars"
+                    value={kpi.totalCars}
+                    icon={<Car className="w-8 h-8 text-blue-600" />}
                     color="bg-blue-50"
                 />
                 <KPICard
-                    title="Departments"
-                    value={kpi.totalDepartments}
-                    icon={<Building2 className="w-8 h-8 text-green-600" />}
+                    title="Total Slots"
+                    value={kpi.totalSlots}
+                    icon={<Grid className="w-8 h-8 text-green-600" />}
                     color="bg-green-50"
                 />
                 <KPICard
-                    title="Total Payroll"
-                    value={`${kpi.totalSalaryPaid?.toLocaleString()} RWF`}
+                    title="Total Revenue"
+                    value={`${kpi.totalRevenue?.toLocaleString()} RWF`}
                     icon={<CreditCard className="w-8 h-8 text-indigo-600" />}
                     color="bg-indigo-50"
-                    subtext="All time processed"
                 />
                 <KPICard
-                    title="Avg Net Salary"
-                    value={`${kpi.avgSalary?.toLocaleString()} RWF`}
-                    icon={<TrendingUp className="w-8 h-8 text-orange-600" />}
+                    title="Occupancy Rate"
+                    value={`${kpi.totalSlots > 0 ? Math.round((kpi.occupiedSlots / kpi.totalSlots) * 100) : 0}%`}
+                    icon={<Activity className="w-8 h-8 text-orange-600" />}
                     color="bg-orange-50"
                 />
             </div>
 
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Salary Trends */}
+                {/* Revenue Trends */}
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                     className="bg-white p-6 rounded-xl shadow-sm border border-gray-100"
                 >
                     <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center">
                         <TrendingUp className="w-5 h-5 mr-2 text-indigo-600" />
-                        Salary Trends (Last 6 Months)
+                        Revenue Trends (Last 7 Days)
                     </h3>
-                    <div className="h-80 w-full">
+                    <div className="h-80 w-full min-h-[320px]">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={charts.salaryTrends || []}>
+                            <BarChart data={charts.revenueTrends || []}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                <XAxis dataKey="monthStr" />
+                                <XAxis dataKey="date" />
                                 <YAxis />
-                                <RechartsTooltip
-                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
-                                />
-                                <Bar dataKey="total" fill="#4F46E5" radius={[4, 4, 0, 0]} barSize={40} />
+                                <RechartsTooltip />
+                                <Bar dataKey="total" fill="#4F46E5" radius={[4, 4, 0, 0]} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
                 </motion.div>
 
-                {/* Department Distribution */}
+                {/* Slot Occupancy Pie */}
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
+                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                     className="bg-white p-6 rounded-xl shadow-sm border border-gray-100"
                 >
                     <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center">
-                        <Users className="w-5 h-5 mr-2 text-indigo-600" />
-                        Employee Distribution
+                        <Activity className="w-5 h-5 mr-2 text-indigo-600" />
+                        Current Occupancy
                     </h3>
-                    <div className="h-80 w-full flex justify-center items-center">
-                        {(!charts.departmentDistribution || charts.departmentDistribution.length === 0) ? (
-                            <p className="text-gray-400">No department data available</p>
-                        ) : (
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={charts.departmentDistribution}
-                                        cx="50%"
-                                        cy="50%"
-                                        innerRadius={60}
-                                        outerRadius={100}
-                                        paddingAngle={5}
-                                        dataKey="count"
-                                        nameKey="DepartmentName"
-                                    >
-                                        {charts.departmentDistribution.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                        ))}
-                                    </Pie>
-// Removed duplicate/legacy code block
-                                    <RechartsTooltip />
-                                    <Legend verticalAlign="bottom" height={36} />
-                                </PieChart>
-                            </ResponsiveContainer>
-                        )}
+                    <div className="h-80 w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={occupancyData}
+                                    cx="50%" cy="50%"
+                                    innerRadius={60} outerRadius={100}
+                                    paddingAngle={5}
+                                    dataKey="value"
+                                >
+                                    <Cell fill="#EF4444" />
+                                    <Cell fill="#10B981" />
+                                </Pie>
+                                <RechartsTooltip />
+                                <Legend />
+                            </PieChart>
+                        </ResponsiveContainer>
                     </div>
                 </motion.div>
             </div>
 
-            {/* Bottom Actions / List */}
+            {/* Recent Operations */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Recent Hires */}
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
+                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                     className="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100"
                 >
-                    <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-lg font-bold text-gray-800 flex items-center">
-                            <Activity className="w-5 h-5 mr-2 text-green-600" />
-                            Recently Hired Employees
-                        </h3>
-                    </div>
+                    <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center">
+                        <Activity className="w-5 h-5 mr-2 text-green-600" />
+                        Recent Parking Operations
+                    </h3>
                     <div className="overflow-x-auto">
                         <table className="min-w-full">
                             <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
                                 <tr>
-                                    <th className="px-4 py-3 text-left">Name</th>
-                                    <th className="px-4 py-3 text-left">Position</th>
-                                    <th className="px-4 py-3 text-left">Department</th>
-                                    <th className="px-4 py-3 text-left">Hired Date</th>
+                                    <th className="px-4 py-3 text-left">Plate</th>
+                                    <th className="px-4 py-3 text-left">Driver</th>
+                                    <th className="px-4 py-3 text-left">Slot</th>
+                                    <th className="px-4 py-3 text-left">Entry</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
-                                {recentHires && recentHires.map((emp, i) => (
+                                {recentActivity && recentActivity.map((rec, i) => (
                                     <tr key={i} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-4 py-3 font-medium text-gray-800">{emp.FirstName} {emp.LastName}</td>
-                                        <td className="px-4 py-3 text-gray-600">{emp.Position}</td>
-                                        <td className="px-4 py-3 text-gray-500 badge">
-                                            <span className="bg-indigo-100 text-indigo-700 px-2 py-1 rounded text-xs px-2">
-                                                {emp.DepartmentCode}
-                                            </span>
-                                        </td>
-                                        <td className="px-4 py-3 text-gray-500 text-sm">{new Date(emp.hiredDate).toLocaleDateString()}</td>
+                                        <td className="px-4 py-3 font-bold text-gray-800">{rec.PlateNumber}</td>
+                                        <td className="px-4 py-3 text-gray-600">{rec.DriverName}</td>
+                                        <td className="px-4 py-3 text-gray-500">#{rec.SlotNumber}</td>
+                                        <td className="px-4 py-3 text-gray-500 text-sm">{new Date(rec.EntryTime).toLocaleTimeString()}</td>
                                     </tr>
                                 ))}
-                                {(!recentHires || recentHires.length === 0) && (
+                                {(!recentActivity || recentActivity.length === 0) && (
                                     <tr>
-                                        <td colSpan="4" className="text-center py-4 text-gray-400">No recent hires found.</td>
+                                        <td colSpan="4" className="text-center py-4 text-gray-400 italic">No recent activity.</td>
                                     </tr>
                                 )}
                             </tbody>
@@ -193,11 +172,8 @@ export default function Dashboard() {
                     </div>
                 </motion.div>
 
-                {/* System Alerts */}
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
+                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                     className="bg-white p-6 rounded-xl shadow-sm border border-gray-100"
                 >
                     <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center">
@@ -208,27 +184,16 @@ export default function Dashboard() {
                         <div className="flex items-start bg-green-50 p-3 rounded-lg">
                             <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" />
                             <div>
-                                <h4 className="text-sm font-semibold text-green-800">System Operational</h4>
-                                <p className="text-xs text-green-600 mt-1">Database connection is stable.</p>
+                                <h4 className="text-sm font-semibold text-green-800">SmartPark API Live</h4>
+                                <p className="text-xs text-green-600 mt-1">Real-time slot tracking enabled.</p>
                             </div>
                         </div>
-
-                        {data.kpi.totalEmployees === 0 && (
+                        {kpi.availableSlots === 0 && (
                             <div className="flex items-start bg-red-50 p-3 rounded-lg">
                                 <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
                                 <div>
-                                    <h4 className="text-sm font-semibold text-red-800">No Employees Found</h4>
-                                    <p className="text-xs text-red-600 mt-1">Please register new employees to get started.</p>
-                                </div>
-                            </div>
-                        )}
-
-                        {data.kpi.totalDepartments === 0 && (
-                            <div className="flex items-start bg-orange-50 p-3 rounded-lg">
-                                <AlertCircle className="w-5 h-5 text-orange-600 mt-0.5 mr-3 flex-shrink-0" />
-                                <div>
-                                    <h4 className="text-sm font-semibold text-orange-800">No Departments</h4>
-                                    <p className="text-xs text-orange-600 mt-1">Create departments before adding employees.</p>
+                                    <h4 className="text-sm font-semibold text-red-800">Parking Full</h4>
+                                    <p className="text-xs text-red-600 mt-1">No available slots for new arrivals.</p>
                                 </div>
                             </div>
                         )}

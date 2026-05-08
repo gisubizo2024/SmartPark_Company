@@ -11,12 +11,12 @@ export default function Register() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const success = await register(username, password);
-        if (success) {
+        const result = await register(username, password);
+        if (result.success) {
             alert('Registration successful! Please login.');
             navigate('/login');
         } else {
-            setError('Registration failed. Username may be taken.');
+            setError(result.message);
         }
     };
 

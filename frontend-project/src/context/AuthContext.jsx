@@ -8,7 +8,7 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
+        const storedUser = sessionStorage.getItem('user');
         if (storedUser) {
             setUser(JSON.parse(storedUser));
         }
@@ -19,30 +19,30 @@ export const AuthProvider = ({ children }) => {
         try {
             const res = await axios.post('http://localhost:5000/auth/login', { username, password });
             if (res.data.username) {
-                const userData = { username: res.data.username };
+                const userData = { username: res.data.username, role: res.data.role };
                 setUser(userData);
-                localStorage.setItem('user', JSON.stringify(userData));
-                return true;
+                sessionStorage.setItem('user', JSON.stringify(userData));
+                return { success: true };
             }
         } catch (error) {
-            console.error(error);
-            return false;
+            const message = error.response?.data?.message || 'Login failed';
+            return { success: false, message };
         }
-        return false;
+        return { success: false, message: 'Invalid response from server' };
     };
 
     const logout = () => {
         setUser(null);
-        localStorage.removeItem('user');
+        sessionStorage.removeItem('user');
     };
 
     const register = async (username, password) => {
         try {
             await axios.post('http://localhost:5000/auth/register', { username, password });
-            return true;
+            return { success: true };
         } catch (error) {
-            console.error(error);
-            return false;
+            const message = error.response?.data?.message || 'Registration failed';
+            return { success: false, message };
         }
     };
 
